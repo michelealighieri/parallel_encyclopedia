@@ -1,16 +1,204 @@
 ---
+import Airtable from 'airtable';
 
+// Configura Airtable
+const base = new Airtable({
+  apiKey: import.meta.env.PUBLIC_AIRTABLE_API_KEY
+}).base(import.meta.env.PUBLIC_AIRTABLE_BASE_ID);
+
+// Recupera i dati
+let items = [];
+try {
+  const records = await base(import.meta.env.PUBLIC_AIRTABLE_TABLE_NAME)
+    .select({ maxRecords: 100 })
+    .all();
+ 
+  items = records.map(record => ({
+    id: record.id,
+    title: record.fields.titolo,
+    description: record.fields.descrizione,
+    image: record.fields.immagini?.[0]?.url,
+    category: record.fields.categoria,
+    autore: record.fields.autore,
+    anno: record.fields.anno
+  }));
+} catch (error) {
+  console.error('Errore caricamento dati:', error);
+}
+
+const titolo = "Parallel Encyclopedia";
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Parallel Encyclopedia</title>
+    <link rel="stylesheet" href="fogliodistile_parallel.css">
+  </head>
+  <body>
+
+  {/* Contenitore che allinea titolo e conteggio */}
+  <div class="page-header">
+    {/* Aggiunto id per rendere il titolo cliccabile */}
+    <h1 id="main-title">{titolo}</h1>
+    <p>Total items: {items.length}</p>
+  </div>
+
+  {/* Nuovo contenitore per la sinossi */}
+  <div id="synopsis-section" class="synopsis">
+    <p>
+      Benvenuto in Parallel Encyclopedia, un archivio digitale collaborativo.
+      Questo progetto nasce con l'obiettivo di raccogliere e catalogare... 
+      (Puoi modificare questo testo con la tua sinossi).
+    </p>
+  </div>
+ 
+  <div class="grid">
+  {items.map(item => (
+    <div class="card">
+      {/* L'immagine non è più qui */}
+      
+      <div class="card-header">
+        <h3>{item.title}</h3>
+        <h4>{item.autore}</h4>
+        <h5>{item.anno}</h5>
+        {item.category && <span class="category">{item.category}</span>} 
+      </div>
+
+      {/* NUOVO CONTENITORE per immagine e testo */}
+      <div class="description">
+        {/* L'immagine è stata spostata QUI */}
+        {item.image && <img class="description-image" src={item.image} alt={item.title} />}
+        {/* Il testo ora è un semplice paragrafo all'interno del contenitore */}
+        <p>{item.description}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+  {/* Form contributo */}
+  <details class="contribute-section">
+    <summary>Vuoi contribuire all'archivio?</summary>
+  
+    <form id="contribute-form" class="contribute-form">
+      <div class="form-group">
+        <label for="title">Titolo *</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+    
+      <div class="form-group">
+        <label for="description">Descrizione *</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+      </div>
+    
+      <div class="form-group">
+        <label for="category">Categoria</label>
+        <select id="category" name="category">
+          <option value="">Seleziona...</option>
+          <option value="Neri">Neri</option>
+          <option value="Siamesi">Siamesi</option>
+          <option value="Europei">Europei</option>
+          <option value="Altro">Altro</option>
+        </select>
+      </div>
+    
+      <div class="form-group">
+        <label for="image-url">URL Immagine</label>
+        <input
+          type="url"
+          id="image-url"
+          name="imageUrl"
+          placeholder="https://esempio.com/immagine.jpg"
+        >
+        <small>Inserisci il link di un'immagine già online (es: da Unsplash, Imgur, etc.)</small>
+      </div>
+    
+      <button type="submit" class="submit-btn">Invia contributo</button>
+      <div id="form-message" class="form-message"></div>
+    </form>
+  </details>
+
+  <script>
+    // SCRIPT PER LA SINOSSI
+const mainTitle = document.getElementById('main-title');
+const synopsisSection = document.getElementById('synopsis-section');
+
+if (mainTitle && synopsisSection) {
+  mainTitle.addEventListener('click', () => {
+    // Mostra/nasconde la sinossi
+    synopsisSection.classList.toggle('visible');
+    // AGGIUNTA: Aggiunge/rimuove la classe 'active' dal titolo
+    mainTitle.classList.toggle('active');
+  });
+}
+
+    // SCRIPT PER IL TOGGLE DELLA DESCRIZIONE
+    const headers = document.querySelectorAll('.card-header');
+    headers.forEach(header => {
+      header.addEventListener('click', () => {
+        const description = header.nextElementSibling;
+        description.classList.toggle('visible');
+      });
+    });
+
+    // SCRIPT PER IL FORM DI CONTRIBUTO
+    document.getElementById('contribute-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+    
+      const submitBtn = e.target.querySelector('.submit-btn');
+      const messageDiv = document.getElementById('form-message');
+    
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Invio in corso...';
+      messageDiv.style.display = 'block';
+    
+      const imageUrl = document.getElementById('image-url').value.trim();
+    
+      const formData = {
+        titolo: document.getElementById('title').value,
+        descrizione: document.getElementById('description').value,
+        categoria: document.getElementById('category').value,
+      };
+    
+      if (imageUrl) {
+        formData.Image = [{ url: imageUrl }];
+      }
+    
+      try {
+        const response = await fetch(`https://api.airtable.com/v0/${import.meta.env.PUBLIC_AIRTABLE_BASE_ID}/${import.meta.env.PUBLIC_AIRTABLE_TABLE_NAME}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.PUBLIC_AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            records: [{ fields: formData }]
+          })
+        });
+      
+        const responseData = await response.json();
+      
+        if (response.ok) {
+          messageDiv.textContent = '✅ Contributo inviato con successo! Ricarica la pagina per vederlo.';
+          messageDiv.className = 'form-message success';
+          e.target.reset();
+        } else {
+          messageDiv.textContent = `❌ Errore: ${responseData.error?.message || 'Errore sconosciuto'}`;
+          messageDiv.className = 'form-message error';
+        }
+      } catch (error) {
+        messageDiv.textContent = '❌ Errore durante l\'invio. Riprova.';
+        messageDiv.className = 'form-message error';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Invia contributo';
+      }
+    });
+  </script>
+
+  
+</body>
 </html>

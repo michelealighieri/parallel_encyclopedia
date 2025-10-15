@@ -1,0 +1,131 @@
+@font-face {
+    font-family: 'selecta-light';
+    src: url('font/Selecta-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'selecta-regular';
+    src: url('font/Selecta-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+  font-family: 'selecta-regular', sans-serif;
+  font-size: 10pt;
+  color: gray;
+  background-color: rgb(0, 0, 0);
+  margin: 0;
+  padding: 0;
+}
+
+body h1, body h2, body h3, body h4, body h5, body p {
+  font-family: 'selecta-regular', sans-serif;
+  font-size: 10pt;
+  color: gray;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+}
+
+.card-header {
+  display: grid;
+  grid-template-columns: 3fr 2fr 1fr 1.5fr;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px;
+  border-bottom: 0.5px solid #7b7b7b;
+  margin-left: 6px;
+  margin-right: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.card-header * {
+  transition: color 0.3s ease;
+}
+
+.card-header:hover {
+  background-color: #1a1a1a;
+}
+
+.card-header:hover * {
+  color: rgb(236, 236, 236);
+}
+
+/* === MODIFICHE PER LAYOUT E FUNZIONALITÀ CORRETTE === */
+
+/* 1. Il contenitore è nascosto di default. Le proprietà di layout sono qui ma inattive. */
+.description {
+  display: none;
+  padding: 10px;
+  align-items: flex-start;
+  gap: 1em;
+}
+
+/* 2. Quando la classe .visible viene aggiunta, il box appare E si formatta come flex. */
+.description.visible {
+  display: flex;
+}
+
+/* 3. L'immagine ha una dimensione fissa e si adatta senza deformarsi. */
+.description-image {
+  width: 220px;
+  height: 320px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* ============================================== */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px;
+  margin: 0;
+}
+
+.synopsis {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: transparent;
+  z-index: 1000;
+  pointer-events: none;
+  margin: 0;
+}
+
+.synopsis p {
+  color: white;
+  font-size: 18pt;
+  text-align: left;
+  max-width: 800px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  pointer-events: auto;
+  font-family: 'selecta-light', sans-serif;
+}
+
+.synopsis.visible {
+  display: flex;
+}
+
+/* === REGOLA #main-title UNIFICATA E CORRETTA === */
+#main-title {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+#main-title:hover,
+#main-title.active {
+  color: rgb(193, 180, 132);
+}
