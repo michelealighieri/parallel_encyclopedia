@@ -55,6 +55,33 @@ body h1, body h2, body h3, body h4, body h5, body p {
   color: rgb(236, 236, 236);
 }
 
+/* Stile per la nuova barra esplicativa (legenda) */
+.legend-bar {
+  display: grid;
+  /* Griglia a 4 colonne IDENTICA a .card-header per un allineamento perfetto */
+  grid-template-columns: 3fr 2fr 1fr 1.5fr;
+  gap: 10px;
+  padding: 4px;
+  border-bottom: 0.5px solid #7b7b7b;
+  margin-left: 6px;
+  margin-right: 6px;
+  font-family: 'selecta-regular', sans-serif;
+  /* Aggiunto per posizionare il contatore al suo interno */
+  position: relative;
+  color: rgb(216, 216, 216);
+ 
+}
+
+/* Stile per il conteggio degli elementi nella legenda */
+.item-count {
+  /* Lo rimuove dal flusso della griglia e lo posiziona a destra */
+  position: absolute;
+  right: 6px; /* Stesso valore del margin-right per allinearlo */
+  top: 50%;
+  transform: translateY(-50%); /* Lo centra verticalmente */
+  color: rgb(216, 216, 216);
+}
+
 /* === MODIFICHE PER LAYOUT E FUNZIONALITÀ CORRETTE === */
 
 /* 1. Il contenitore è nascosto di default. Le proprietà di layout sono qui ma inattive. */
@@ -128,4 +155,43 @@ body h1, body h2, body h3, body h4, body h5, body p {
 #main-title:hover,
 #main-title.active {
   color: rgb(193, 180, 132);
+}
+
+/* Contenitore invisibile per posizionare l'anteprima */
+/* Contenitore invisibile per posizionare l'anteprima al centro */
+#image-preview {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* La chiave per la centratura */
+  z-index: 2000;
+  pointer-events: none;
+}
+
+/* Stile per l'immagine fluttuante alla sua dimensione originale */
+#image-preview img {
+   /* Scala l'immagine all'80% della sua dimensione originale */
+  transform: scale(0.8);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  display: block;
+  opacity: 60%; /* Aggiungi questa riga per la trasparenza */
+}
+
+
+/* Stile per la nuova navigazione nel header */
+.main-nav {
+  display: flex;
+  gap: 10px; /* Spazio tra le parole "Index" e "About" */
+}
+
+.main-nav a {
+  font-family: 'selecta-regular', sans-serif;
+  color: gray;
+  text-decoration: none; /* Rimuove la sottolineatura */
+  transition: color 0.3s ease;
+}
+
+.main-nav a:hover {
+  color: white; /* Cambia colore al passaggio del mouse */
 }

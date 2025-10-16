@@ -37,18 +37,21 @@ const titolo = "Parallel Encyclopedia";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>Parallel Encyclopedia</title>
-    <!--valentina è stata qui-->
-  </head>
+    </head>
   <body>
 
-  {/* Contenitore che allinea titolo e conteggio */}
-  <div class="page-header">
-    {/* Aggiunto id per rendere il titolo cliccabile */}
+  <div id="image-preview"></div>
+
+<div class="page-header">
     <h1 id="main-title">{titolo}</h1>
-    <p>Total items: {items.length}</p>
+
+    {/* NUOVA SEZIONE DI NAVIGAZIONE */}
+    <nav class="main-nav">
+      <a href="/">Index</a>
+      <a href="/about">About</a>
+    </nav>
   </div>
 
-  {/* Nuovo contenitore per la sinossi */}
   <div id="synopsis-section" class="synopsis">
     <p>
       Benvenuto in Parallel Encyclopedia, un archivio digitale collaborativo.
@@ -56,45 +59,44 @@ const titolo = "Parallel Encyclopedia";
       (Puoi modificare questo testo con la tua sinossi). Ciao.
     </p>
   </div>
+
+  <div class="legend-bar">
+    <span>Titolo</span>
+    <span>Autore</span>
+    <span>Anno</span>
+    <span>Categoria</span>
+    <p class="item-count">Total items: {items.length}</p>
+  </div>
  
   <div class="grid">
-  {items.map(item => (
-    <div class="card">
-      {/* L'immagine non è più qui */}
-      
-      <div class="card-header">
-        <h3>{item.title}</h3>
-        <h4>{item.autore}</h4>
-        <h5>{item.anno}</h5>
-        {item.category && <span class="category">{item.category}</span>} 
-      </div>
+    {items.map(item => (
+      <div class="card">
+        <div class="card-header" data-image-url={item.image}>
+          <h3>{item.title}</h3>
+          <h4>{item.autore}</h4>
+          <h5>{item.anno}</h5>
+          {item.category && <span class="category">{item.category}</span>} 
+        </div>
 
-      {/* NUOVO CONTENITORE per immagine e testo */}
-      <div class="description">
-        {/* L'immagine è stata spostata QUI */}
-        {item.image && <img class="description-image" src={item.image} alt={item.title} />}
-        {/* Il testo ora è un semplice paragrafo all'interno del contenitore */}
-        <p>{item.description}</p>
+        <div class="description">
+          {item.image && <img class="description-image" src={item.image} alt={item.title} />}
+          <p>{item.description}</p>
+        </div>
       </div>
-    </div>
-  ))}
-</div>
+    ))}
+  </div>
 
-  {/* Form contributo */}
   <details class="contribute-section">
     <summary>Vuoi contribuire all'archivio?</summary>
-  
     <form id="contribute-form" class="contribute-form">
       <div class="form-group">
         <label for="title">Titolo *</label>
         <input type="text" id="title" name="title" required>
       </div>
-    
       <div class="form-group">
         <label for="description">Descrizione *</label>
         <textarea id="description" name="description" rows="4" required></textarea>
       </div>
-    
       <div class="form-group">
         <label for="category">Categoria</label>
         <select id="category" name="category">
@@ -105,69 +107,60 @@ const titolo = "Parallel Encyclopedia";
           <option value="Altro">Altro</option>
         </select>
       </div>
-    
       <div class="form-group">
         <label for="image-url">URL Immagine</label>
-        <input
-          type="url"
-          id="image-url"
-          name="imageUrl"
-          placeholder="https://esempio.com/immagine.jpg"
-        >
+        <input type="url" id="image-url" name="imageUrl" placeholder="https://esempio.com/immagine.jpg">
         <small>Inserisci il link di un'immagine già online (es: da Unsplash, Imgur, etc.)</small>
       </div>
-    
       <button type="submit" class="submit-btn">Invia contributo</button>
       <div id="form-message" class="form-message"></div>
     </form>
   </details>
 
   <script>
-// SCRIPT PER LA SINOSSI
-const mainTitle = document.getElementById('main-title');
-const synopsisSection = document.getElementById('synopsis-section');
+    // --- SCRIPT PER LA SINOSSI ---
+    const mainTitle = document.getElementById('main-title');
+    const synopsisSection = document.getElementById('synopsis-section');
 
-if (mainTitle && synopsisSection) {
-  mainTitle.addEventListener('click', () => {
-    // Mostra/nasconde la sinossi
-    synopsisSection.classList.toggle('visible');
-    // AGGIUNTA: Aggiunge/rimuove la classe 'active' dal titolo
-    mainTitle.classList.toggle('active');
-  });
-}
+    if (mainTitle && synopsisSection) {
+      mainTitle.addEventListener('click', () => {
+        synopsisSection.classList.toggle('visible');
+        mainTitle.classList.toggle('active');
+      });
+    }
 
-    // SCRIPT PER IL TOGGLE DELLA DESCRIZIONE
+    // --- SCRIPT PER IL TOGGLE DELLA DESCRIZIONE ---
     const headers = document.querySelectorAll('.card-header');
     headers.forEach(header => {
       header.addEventListener('click', () => {
         const description = header.nextElementSibling;
-        description.classList.toggle('visible');
+        if (description) {
+          description.classList.toggle('visible');
+        }
       });
     });
 
-    // SCRIPT PER IL FORM DI CONTRIBUTO
+    // --- SCRIPT PER IL FORM DI CONTRIBUTO ---
     document.getElementById('contribute-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
-    
       const submitBtn = e.target.querySelector('.submit-btn');
       const messageDiv = document.getElementById('form-message');
-    
       submitBtn.disabled = true;
       submitBtn.textContent = 'Invio in corso...';
       messageDiv.style.display = 'block';
-    
+
       const imageUrl = document.getElementById('image-url').value.trim();
-    
       const formData = {
         titolo: document.getElementById('title').value,
         descrizione: document.getElementById('description').value,
         categoria: document.getElementById('category').value,
       };
-    
+
       if (imageUrl) {
-        formData.Image = [{ url: imageUrl }];
+        // Assicurati che il nome del campo 'Immagini' corrisponda a quello in Airtable
+        formData.Immagini = [{ url: imageUrl }];
       }
-    
+
       try {
         const response = await fetch(`https://api.airtable.com/v0/${import.meta.env.PUBLIC_AIRTABLE_BASE_ID}/${import.meta.env.PUBLIC_AIRTABLE_TABLE_NAME}`, {
           method: 'POST',
@@ -179,9 +172,8 @@ if (mainTitle && synopsisSection) {
             records: [{ fields: formData }]
           })
         });
-      
+
         const responseData = await response.json();
-      
         if (response.ok) {
           messageDiv.textContent = '✅ Contributo inviato con successo! Ricarica la pagina per vederlo.';
           messageDiv.className = 'form-message success';
@@ -197,6 +189,25 @@ if (mainTitle && synopsisSection) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Invia contributo';
       }
+    });
+
+    // --- SCRIPT PER L'ANTEPRIMA IMMAGINE SU HOVER ---
+    const imagePreviewContainer = document.getElementById('image-preview');
+    const allCardHeaders = document.querySelectorAll('.card-header');
+
+    allCardHeaders.forEach(header => {
+      header.addEventListener('mouseenter', (event) => {
+        const imageUrl = event.currentTarget.dataset.imageUrl;
+        if (imageUrl && imageUrl !== 'undefined') {
+          imagePreviewContainer.innerHTML = `<img src="${imageUrl}" alt="Anteprima">`;
+          imagePreviewContainer.style.display = 'block';
+        }
+      });
+
+      header.addEventListener('mouseleave', () => {
+        imagePreviewContainer.style.display = 'none';
+        imagePreviewContainer.innerHTML = '';
+      });
     });
   </script>
   
