@@ -11,7 +11,7 @@ const base = new Airtable({
 let items = [];
 try {
   const records = await base(import.meta.env.PUBLIC_AIRTABLE_TABLE_NAME)
-    .select({ maxRecords: 100 })
+    .select({ maxRecords: 3000 })
     .all();
  
   items = records.map(record => ({
@@ -21,7 +21,8 @@ try {
     image: record.fields.immagini?.[0]?.url,
     category: record.fields.categoria,
     autore: record.fields.autore,
-    anno: record.fields.anno
+    anno: record.fields.anno,
+    luogo: record.fields.luogo
   }));
 } catch (error) {
   console.error('Errore caricamento dati:', error);
@@ -42,13 +43,12 @@ const titolo = "Parallel Encyclopedia";
 
   <div id="image-preview"></div>
 
-<div class="page-header">
+  <div class="page-header">
     <h1 id="main-title">{titolo}</h1>
-
-    {/* NUOVA SEZIONE DI NAVIGAZIONE */}
     <nav class="main-nav">
       <a href="/">Index</a>
       <a href="/about">About</a>
+      <a href="#" id="add-item-link">Aggiungi</a>
     </nav>
   </div>
 
@@ -64,6 +64,7 @@ const titolo = "Parallel Encyclopedia";
     <span>Titolo</span>
     <span>Autore</span>
     <span>Anno</span>
+    <span>Luogo</span>
     <span>Categoria</span>
     <p class="item-count">Total items: {items.length}</p>
   </div>
@@ -75,6 +76,7 @@ const titolo = "Parallel Encyclopedia";
           <h3>{item.title}</h3>
           <h4>{item.autore}</h4>
           <h5>{item.anno}</h5>
+          <h6>{item.luogo}</h6>
           {item.category && <span class="category">{item.category}</span>} 
         </div>
 
@@ -89,6 +91,8 @@ const titolo = "Parallel Encyclopedia";
   <details class="contribute-section">
     <summary>Vuoi contribuire all'archivio?</summary>
     <form id="contribute-form" class="contribute-form">
+      
+      {/* --- CONTENUTO DEL FORM REINSERITO QUI --- */}
       <div class="form-group">
         <label for="title">Titolo *</label>
         <input type="text" id="title" name="title" required>
@@ -114,6 +118,7 @@ const titolo = "Parallel Encyclopedia";
       </div>
       <button type="submit" class="submit-btn">Invia contributo</button>
       <div id="form-message" class="form-message"></div>
+
     </form>
   </details>
 
@@ -157,8 +162,7 @@ const titolo = "Parallel Encyclopedia";
       };
 
       if (imageUrl) {
-        // Assicurati che il nome del campo 'Immagini' corrisponda a quello in Airtable
-        formData.Immagini = [{ url: imageUrl }];
+        formData.immagini = [{ url: imageUrl }];
       }
 
       try {
@@ -209,6 +213,18 @@ const titolo = "Parallel Encyclopedia";
         imagePreviewContainer.innerHTML = '';
       });
     });
+    
+    // --- SCRIPT PER APRIRE IL FORM CON "AGGIUNGI" ---
+    const addLink = document.getElementById('add-item-link');
+    const contributeSection = document.querySelector('.contribute-section');
+
+    if (addLink && contributeSection) {
+      addLink.addEventListener('click', (event) => {
+        event.preventDefault(); // Impedisce al link di navigare
+        // Apre o chiude la sezione <details>
+        contributeSection.open = !contributeSection.open;
+      });
+    }
   </script>
   
 </body>
